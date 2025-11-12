@@ -1,0 +1,44 @@
+{
+  "instructionId": "INS-20251112-0001",
+  "tradeDate": "2025-11-12",
+  "settlementDate": "2025-11-14",
+  "sourceSystem": "BrokerA",
+  "instrument": {
+    "symbol": "AAPL",
+    "isin": "US0378331005",
+    "instrumentType": "EQUITY"
+  },
+  "party": {
+    "buyer": {
+      "id": "CLNT12345",
+      "name": "Alpha Investments LLC",
+      "account": "ACC-001-USD",
+      "security": "def456"
+    },
+    "seller": {
+      "id": "BRK001",
+      "name": "Broker A",
+      "account": "ACC-BR-AAPL",
+      "security": "abc123"
+    }
+  },
+  "transaction": {
+    "side": "BUY",
+    "quantity": 100,
+    "price": 188.50,
+    "currency": "USD",
+    "grossAmount": 18850.00,
+    "tradeType": "REGULAR",
+    "executionVenue": "NASDAQ"
+  },
+  "status": {
+    "currentStatus": "RECEIVED",
+    "timestamp": "2025-11-12T09:30:00Z"
+  },
+  "metadata": {
+    "receivedTimestamp": "2025-11-12T09:30:00Z",
+    "correlationId": "bf36b21e-12aa-40fd-bcfa-8b6f39b6e987",
+    "sourceMessageFormat": "XML",
+    "sourceMessageId": "MSG-44588"
+  }
+}

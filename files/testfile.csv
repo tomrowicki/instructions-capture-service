@@ -1,0 +1,2 @@
+﻿instructionId,tradeDate,settlementDate,sourceSystem,symbol,isin,instrumentType,side,quantity,price,currency
+INS-001,2025-11-12,2025-11-14,BrokerA,AAPL,US0378331005,EQUITY,BUY,100,188.5,USD

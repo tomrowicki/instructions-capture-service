@@ -1,0 +1,26 @@
+server:
+  port: 8081
+
+spring:
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+  application:
+    name: Instructions Capture Service
+  kafka:
+    streams:
+      auto-startup: false
+
+    consumer:
+      group-id: instructions-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    properties:
+      spring.json.trusted.packages: com.example.instructions.model
+    topic:
+      instructionsin: instructions.inbound
+      instructionsout: instructions.outbound
+
+  profiles:
+    active: local
