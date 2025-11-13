@@ -16,6 +16,7 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +32,7 @@ class CanonicalTradeKafkaIntegrationTest {
     private String embeddedKafkaBrokers;
 
     @Test
-    void shouldSendAndReceiveCanonicalTrade() throws Exception {
+    void shouldSendAndReceiveCanonicalTradeAndSubmitItForFurtherProcessing() throws Exception {
         // Test data setup
         CanonicalTrade trade = new CanonicalTrade();
         trade.setInstructionId("INS-TEST-001");
@@ -42,12 +43,24 @@ class CanonicalTradeKafkaIntegrationTest {
         instrument.setInstrumentType("EQUITY");
         trade.setInstrument(instrument);
 
+        CanonicalTrade.Trader trader = new CanonicalTrade.Trader();
+        trader.setId("test-0");
+        trader.setName("Mr. Trader");
+        trader.setSecurity("abc123");
+        trader.setAccount("1234567890");
+        trade.setTrader(trader);
+
         Transaction tx = new Transaction();
         tx.setSide("BUY");
         tx.setQuantity(50);
         tx.setPrice(180.75);
+        tx.setGrossAmount(200);
         tx.setCurrency("USD");
         trade.setTransaction(tx);
+
+        CanonicalTrade.Metadata metadata = new CanonicalTrade.Metadata();
+        metadata.setTradeDateTime(ZonedDateTime.now());
+        trade.setMetadata(metadata);
 
         // Temporary producer creation
         Map<String, Object> props = new HashMap<>();

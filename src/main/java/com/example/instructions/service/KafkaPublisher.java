@@ -8,8 +8,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,11 +19,10 @@ public class KafkaPublisher {
     private static final Logger logger = LoggerFactory.getLogger(KafkaPublisher.class);
 
     private final KafkaTemplate<String, PlatformTrade> kafkaTemplate;
-    private final DateTimeFormatter timestampFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy-HH:mm:ss Z");
     @Value("${spring.kafka.topic.instructionsout}")
     private String topic;
 
-    private final ConcurrentHashMap<ZonedDateTime, PlatformTrade> tradeMap;
+    private final ConcurrentHashMap<String, PlatformTrade> tradeMap;
 
     public KafkaPublisher(KafkaTemplate<String, PlatformTrade> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
@@ -34,27 +31,28 @@ public class KafkaPublisher {
 
     public void addTrade(PlatformTrade trade) {
         if (trade != null && trade.getTrade().getTimestamp() != null) {
-            tradeMap.put(trade.getTrade().getTimestamp(), trade);
+            tradeMap.put(establishTradeKey(trade), trade);
         }
     }
 
     public void publishAll() {
         List<PlatformTrade> tradesToSend = tradeMap.values()
                 .stream()
-                .collect(Collectors.toList());
+                .toList();
 
         for (PlatformTrade trade : tradesToSend) {
+            // message keys do not need to be unique, so platformId appears to be ok
             CompletableFuture<SendResult<String, PlatformTrade>> future =
-                    kafkaTemplate.send(topic, trade.getTrade().getTimestamp().format(timestampFormatter), trade);
+                    kafkaTemplate.send(topic, trade.getPlatformId(), trade);
 
             future.whenComplete((result, ex) -> {
                 if (ex != null) {
-                    logger.error("Could not send instruction {} to topic {}",
-                            trade.getTrade().getTimestamp().format(timestampFormatter), topic, ex);
+                    logger.error("Could not send instruction performed at {} to topic {}",
+                            trade.getTrade().getTimestamp().toEpochMilli(), topic, ex);
                 } else {
-                    tradeMap.remove(trade.getTrade().getTimestamp());
-                    logger.info("Sent instruction {} to topic {}, offset={}",
-                            trade.getTrade().getTimestamp().format(timestampFormatter), topic, result.getRecordMetadata().offset());
+                    tradeMap.remove(establishTradeKey(trade));
+                    logger.debug("Sent instruction performed at {} to topic {}, offset={}",
+                            trade.getTrade().getTimestamp().toEpochMilli(), topic, result.getRecordMetadata().offset());
                 }
             });
         }
@@ -62,5 +60,11 @@ public class KafkaPublisher {
 
     public List<PlatformTrade> getAllTrades() {
         return tradeMap.values().stream().collect(Collectors.toList());
+    }
+
+    // establishing unique trade key
+    private String establishTradeKey(PlatformTrade trade) {
+        return trade.getPlatformId() + "-" + trade.getTrade().getAccount() +
+                "-" + trade.getTrade().getTimestamp().getEpochSecond();
     }
 }

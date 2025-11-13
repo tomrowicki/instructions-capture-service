@@ -1,6 +1,5 @@
 package com.example.instructions.model;
 
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Objects;
@@ -9,14 +8,11 @@ import java.util.Objects;
 public class CanonicalTrade {
 
     private String instructionId;
-    private LocalDate tradeDate;
-    private LocalDate settlementDate;
     private String sourceSystem;
 
     private Instrument instrument;
-    private Party party;
+    private Trader trader;
     private Transaction transaction;
-    private Status status;
     private Metadata metadata;
 
 
@@ -50,63 +46,43 @@ public class CanonicalTrade {
         }
     }
 
-    public static class Party {
-        private PartyDetail buyer;
-        private PartyDetail seller;
 
-        public PartyDetail getBuyer() {
-            return buyer;
+    public static class Trader {
+        private String id;
+        private String name;
+        private String account;
+        private String security;
+
+        public String getId() {
+            return id;
         }
 
-        public void setBuyer(PartyDetail buyer) {
-            this.buyer = buyer;
+        public void setId(String id) {
+            this.id = id;
         }
 
-        public PartyDetail getSeller() {
-            return seller;
+        public String getName() {
+            return name;
         }
 
-        public void setSeller(PartyDetail seller) {
-            this.seller = seller;
+        public void setName(String name) {
+            this.name = name;
         }
 
-        public static class PartyDetail {
-            private String id;
-            private String name;
-            private String account;
-            private String security;
+        public String getAccount() {
+            return account;
+        }
 
-            public String getId() {
-                return id;
-            }
+        public void setAccount(String account) {
+            this.account = account;
+        }
 
-            public void setId(String id) {
-                this.id = id;
-            }
+        public String getSecurity() {
+            return security;
+        }
 
-            public String getName() {
-                return name;
-            }
-
-            public void setName(String name) {
-                this.name = name;
-            }
-
-            public String getAccount() {
-                return account;
-            }
-
-            public void setAccount(String account) {
-                this.account = account;
-            }
-
-            public String getSecurity() {
-                return security;
-            }
-
-            public void setSecurity(String security) {
-                this.security = security;
-            }
+        public void setSecurity(String security) {
+            this.security = security;
         }
     }
 
@@ -176,40 +152,19 @@ public class CanonicalTrade {
         }
     }
 
-    public static class Status {
-        private String currentStatus;
-        private ZonedDateTime timestamp;
-
-        public String getCurrentStatus() {
-            return currentStatus;
-        }
-
-        public void setCurrentStatus(String currentStatus) {
-            this.currentStatus = currentStatus;
-        }
-
-        public ZonedDateTime getTimestamp() {
-            return timestamp;
-        }
-
-        public void setTimestamp(ZonedDateTime timestamp) {
-            this.timestamp = timestamp;
-        }
-    }
-
     public static class Metadata {
-        private ZonedDateTime receivedTimestamp;
+        private ZonedDateTime tradeDateTime;
         private String correlationId;
         private String sourceMessageFormat;
         private String sourceMessageId;
         private Map<String, Object> additionalProperties;
 
-        public ZonedDateTime getReceivedTimestamp() {
-            return receivedTimestamp;
+        public ZonedDateTime getTradeDateTime() {
+            return tradeDateTime;
         }
 
-        public void setReceivedTimestamp(ZonedDateTime receivedTimestamp) {
-            this.receivedTimestamp = receivedTimestamp;
+        public void setTradeDateTime(ZonedDateTime tradeDateTime) {
+            this.tradeDateTime = tradeDateTime;
         }
 
         public String getCorrelationId() {
@@ -253,22 +208,6 @@ public class CanonicalTrade {
         this.instructionId = instructionId;
     }
 
-    public LocalDate getTradeDate() {
-        return tradeDate;
-    }
-
-    public void setTradeDate(LocalDate tradeDate) {
-        this.tradeDate = tradeDate;
-    }
-
-    public LocalDate getSettlementDate() {
-        return settlementDate;
-    }
-
-    public void setSettlementDate(LocalDate settlementDate) {
-        this.settlementDate = settlementDate;
-    }
-
     public String getSourceSystem() {
         return sourceSystem;
     }
@@ -285,12 +224,12 @@ public class CanonicalTrade {
         this.instrument = instrument;
     }
 
-    public Party getParty() {
-        return party;
+    public Trader getTrader() {
+        return trader;
     }
 
-    public void setParty(Party party) {
-        this.party = party;
+    public void setTrader(Trader trader) {
+        this.trader = trader;
     }
 
     public Transaction getTransaction() {
@@ -299,14 +238,6 @@ public class CanonicalTrade {
 
     public void setTransaction(Transaction transaction) {
         this.transaction = transaction;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
     }
 
     public Metadata getMetadata() {
@@ -321,21 +252,11 @@ public class CanonicalTrade {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         CanonicalTrade that = (CanonicalTrade) o;
-        return Objects.equals(getInstructionId(), that.getInstructionId()) &&
-                Objects.equals(getTradeDate(), that.getTradeDate()) &&
-                Objects.equals(getSettlementDate(), that.getSettlementDate()) &&
-                Objects.equals(getSourceSystem(), that.getSourceSystem()) &&
-                Objects.equals(getInstrument(), that.getInstrument()) &&
-                Objects.equals(getParty(), that.getParty()) &&
-                Objects.equals(getTransaction(), that.getTransaction()) &&
-                Objects.equals(getStatus(), that.getStatus()) &&
-                Objects.equals(getMetadata(), that.getMetadata());
+        return Objects.equals(getInstructionId(), that.getInstructionId()) && Objects.equals(getSourceSystem(), that.getSourceSystem()) && Objects.equals(getInstrument(), that.getInstrument()) && Objects.equals(getTrader(), that.getTrader()) && Objects.equals(getTransaction(), that.getTransaction()) && Objects.equals(getMetadata(), that.getMetadata());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getInstructionId(), getTradeDate(), getSettlementDate(),
-                getSourceSystem(), getInstrument(), getParty(), getTransaction(),
-                getStatus(), getMetadata());
+        return Objects.hash(getInstructionId(), getSourceSystem(), getInstrument(), getTrader(), getTransaction(), getMetadata());
     }
 }

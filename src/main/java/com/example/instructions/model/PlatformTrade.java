@@ -1,6 +1,6 @@
 package com.example.instructions.model;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.Objects;
 
 public class PlatformTrade {
@@ -9,7 +9,7 @@ public class PlatformTrade {
     private Trade trade;
 
     public PlatformTrade(String platformId, String account, String security, String type,
-                         double amount, ZonedDateTime timestamp) {
+                         double amount, Instant timestamp) {
         this.platformId = platformId;
         this.trade = new Trade(account, security, type, amount, timestamp);
     }
@@ -20,9 +20,9 @@ public class PlatformTrade {
         private String security;
         private String type;
         private double amount;
-        private ZonedDateTime timestamp;
+        private Instant timestamp;
 
-        public Trade(String account, String security, String type, double amount, ZonedDateTime timestamp) {
+        public Trade(String account, String security, String type, double amount, Instant timestamp) {
             this.account = account;
             this.security = security;
             this.type = type;
@@ -62,11 +62,11 @@ public class PlatformTrade {
             this.amount = amount;
         }
 
-        public ZonedDateTime getTimestamp() {
+        public Instant getTimestamp() {
             return timestamp;
         }
 
-        public void setTimestamp(ZonedDateTime timestamp) {
+        public void setTimestamp(Instant timestamp) {
             this.timestamp = timestamp;
         }
     }

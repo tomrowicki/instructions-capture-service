@@ -1,2 +1,2 @@
-﻿instructionId,tradeDate,settlementDate,sourceSystem,symbol,isin,instrumentType,side,quantity,price,currency
-INS-001,2025-11-12,2025-11-14,BrokerA,AAPL,US0378331005,EQUITY,BUY,100,188.5,USD
+﻿instructionId,sourceSystem,instrument.symbol,instrument.isin,instrument.instrumentType,trader.id,trader.name,trader.account,trader.security,transaction.side,transaction.quantity,transaction.price,transaction.currency,transaction.grossAmount,transaction.tradeType,transaction.executionVenue,metadata.tradeDateTime,metadata.correlationId,metadata.sourceMessageFormat,metadata.sourceMessageId,metadata.additionalProperties.batchId,metadata.additionalProperties.receivedBy,metadata.additionalProperties.priority
+INS-TEST-001,TRADING_PLATFORM_A,AAPL,US0378331005,EQUITY,TRD001,John Smith,ACC1234567,ABC123,BUY,150,189.75,USD,28462.50,EQUITY_TRADE,NASDAQ,2025-11-13T14:30:45.123Z,CORR-XYZ-20251113,JSON,MSG-987654321,BATCH-2_

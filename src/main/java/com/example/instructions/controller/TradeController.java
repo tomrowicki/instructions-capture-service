@@ -16,7 +16,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -45,6 +47,8 @@ public class TradeController {
 
                 return ResponseEntity.ok("Received JSON:\n" + content);
             } else if ("csv".equalsIgnoreCase(type)) {
+                tradeService.handleCanonicalTradeInstruction(parseCsv(file));
+
                 return ResponseEntity.ok("Received CSV:\n" + content);
             } else {
                 return ResponseEntity.badRequest()
@@ -61,32 +65,61 @@ public class TradeController {
         return objectMapper.readValue(file.getInputStream(), CanonicalTrade.class);
     }
 
-    // untested, out of time
     private CanonicalTrade parseCsv(MultipartFile file) throws IOException {
         try (Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
              CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
 
-            CSVRecord record = parser.iterator().next(); // tylko jeden wiersz
+            CSVRecord record = parser.iterator().next(); // one file - one trade
 
             CanonicalTrade trade = new CanonicalTrade();
-
             trade.setInstructionId(record.get("instructionId"));
-            trade.setTradeDate(LocalDate.parse(record.get("tradeDate")));
-            trade.setSettlementDate(LocalDate.parse(record.get("settlementDate")));
             trade.setSourceSystem(record.get("sourceSystem"));
 
+            // --- Instrument ---
             CanonicalTrade.Instrument instrument = new CanonicalTrade.Instrument();
-            instrument.setSymbol(record.get("symbol"));
-            instrument.setIsin(record.get("isin"));
-            instrument.setInstrumentType(record.get("instrumentType"));
+            instrument.setSymbol(record.get("instrument.symbol"));
+            instrument.setIsin(record.get("instrument.isin"));
+            instrument.setInstrumentType(record.get("instrument.instrumentType"));
             trade.setInstrument(instrument);
 
+            // --- Trader ---
+            CanonicalTrade.Trader trader = new CanonicalTrade.Trader();
+            trader.setId(record.get("trader.id"));
+            trader.setName(record.get("trader.name"));
+            trader.setAccount(record.get("trader.account"));
+            trader.setSecurity(record.get("trader.security"));
+            trade.setTrader(trader);
+
+            // --- Transaction ---
             CanonicalTrade.Transaction tx = new CanonicalTrade.Transaction();
-            tx.setSide(record.get("side"));
-            tx.setQuantity(Double.parseDouble(record.get("quantity")));
-            tx.setPrice(Double.parseDouble(record.get("price")));
-            tx.setCurrency(record.get("currency"));
+            tx.setSide(record.get("transaction.side"));
+            tx.setQuantity(Double.parseDouble(record.get("transaction.quantity")));
+            tx.setPrice(Double.parseDouble(record.get("transaction.price")));
+            tx.setCurrency(record.get("transaction.currency"));
+            tx.setGrossAmount(Double.parseDouble(record.get("transaction.grossAmount")));
+            tx.setTradeType(record.get("transaction.tradeType"));
+            tx.setExecutionVenue(record.get("transaction.executionVenue"));
             trade.setTransaction(tx);
+
+            // --- Metadata ---
+            CanonicalTrade.Metadata metadata = new CanonicalTrade.Metadata();
+            String tradeDate = record.get("metadata.tradeDateTime");
+            metadata.setTradeDateTime(ZonedDateTime.parse(tradeDate));
+
+            metadata.setCorrelationId(record.get("metadata.correlationId"));
+            metadata.setSourceMessageFormat(record.get("metadata.sourceMessageFormat"));
+            metadata.setSourceMessageId(record.get("metadata.sourceMessageId"));
+
+            Map<String, Object> additionalProps = new HashMap<>();
+            for (String header : record.toMap().keySet()) {
+                if (header.startsWith("metadata.additionalProperties.")) {
+                    String key = header.substring("metadata.additionalProperties.".length());
+                    additionalProps.put(key, record.get(header));
+                }
+            }
+            metadata.setAdditionalProperties(additionalProps);
+
+            trade.setMetadata(metadata);
 
             return trade;
         }

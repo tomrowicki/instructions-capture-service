@@ -2,18 +2,35 @@ package com.example.instructions.util;
 
 import com.example.instructions.model.CanonicalTrade;
 import com.example.instructions.model.PlatformTrade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TradeTransformer {
 
-    private static final String PLATFORM_ID = "ACCT123";
+    private static final Logger logger = LoggerFactory.getLogger(TradeTransformer.class);
 
-    /**
-     * Used to mask account number, leaves four last digits unmodified.
-     *
-     * @param accountNo Unmasked account number
-     * @return Masked number
-     */
-    public String maskAccountNo(String accountNo) {
+    public PlatformTrade transformCanonicIntoPlatform(CanonicalTrade canonicalTrade) {
+
+        CanonicalTrade.Trader trader = canonicalTrade.getTrader();
+
+        try {
+            String maskedAccount = maskAccountNo(trader.getAccount());
+            String formattedSecurityNo = formatAndValidateSecurityNo(trader.getSecurity());
+            CanonicalTrade.Transaction transaction = canonicalTrade.getTransaction();
+            String normalizedType = normalizeTradeType(transaction.getSide());
+
+            return new PlatformTrade(canonicalTrade.getSourceSystem(), maskedAccount, formattedSecurityNo,
+                    normalizedType, transaction.getGrossAmount(),
+                    canonicalTrade.getMetadata().getTradeDateTime().toInstant());
+        } catch (IllegalArgumentException e) {
+            logger.error("Could not transform instruction!", e);
+        }
+
+        return null;
+    }
+
+    private String maskAccountNo(String accountNo) {
+        logger.info("Masking account number...");
         if (accountNo == null) {
             return null;
         }
@@ -36,8 +53,8 @@ public class TradeTransformer {
     }
 
 
-    // TODO javadoc
-    public String formatAndValidateSecurityNo(String securityNo) {
+    private String formatAndValidateSecurityNo(String securityNo) {
+        logger.info("Formatting and validating security number...");
         if (securityNo == null) {
             return null;
         }
@@ -58,29 +75,14 @@ public class TradeTransformer {
 
     }
 
-    // TODO javadoc
-    public String normalizeTradeType(String tradeType) {
+    private String normalizeTradeType(String tradeType) {
+        logger.info("Normalizing trade type...");
         return switch (tradeType.toUpperCase()) {
             case "BUY" -> "B";
             case "SELL" -> "S";
             default -> throw new IllegalArgumentException("Trade type is invalid!");
         };
         // TODO test
-    }
-
-    public PlatformTrade transformCanonicIntoPlatform(CanonicalTrade canonicalTrade) {
-        // due to how canonical trade is modelled we have access to both buyer and seller (finalized trade)
-        // it could always be remodelled to indicate each request separately
-        // here we assume we always look at things from the buyer's perspective
-        CanonicalTrade.Party.PartyDetail partyDetail = canonicalTrade.getParty().getBuyer();
-        String maskedAccount = maskAccountNo(partyDetail.getAccount());
-        String formattedSecurityNo = formatAndValidateSecurityNo(partyDetail.getSecurity());
-
-        CanonicalTrade.Transaction transaction = canonicalTrade.getTransaction();
-        String normalizedType = normalizeTradeType(transaction.getTradeType());
-
-        return new PlatformTrade(PLATFORM_ID, maskedAccount, formattedSecurityNo,
-                normalizedType, transaction.getGrossAmount(), canonicalTrade.getMetadata().getReceivedTimestamp());
     }
 
     private boolean securityNoIsValid(String capitalisedSecNo) {

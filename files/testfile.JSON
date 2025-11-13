@@ -1,44 +1,35 @@
 {
-  "instructionId": "INS-20251112-0001",
-  "tradeDate": "2025-11-12",
-  "settlementDate": "2025-11-14",
-  "sourceSystem": "BrokerA",
+  "instructionId": "INS-TEST-001",
+  "sourceSystem": "TRADING_PLATFORM_A",
   "instrument": {
     "symbol": "AAPL",
     "isin": "US0378331005",
     "instrumentType": "EQUITY"
   },
-  "party": {
-    "buyer": {
-      "id": "CLNT12345",
-      "name": "Alpha Investments LLC",
-      "account": "ACC-001-USD",
-      "security": "def456"
-    },
-    "seller": {
-      "id": "BRK001",
-      "name": "Broker A",
-      "account": "ACC-BR-AAPL",
-      "security": "abc123"
-    }
+  "trader": {
+    "id": "TRD001",
+    "name": "John Smith",
+    "account": "ACC1234567",
+    "security": "ABC123"
   },
   "transaction": {
     "side": "BUY",
-    "quantity": 100,
-    "price": 188.50,
+    "quantity": 150,
+    "price": 189.75,
     "currency": "USD",
-    "grossAmount": 18850.00,
-    "tradeType": "REGULAR",
+    "grossAmount": 28462.50,
+    "tradeType": "EQUITY_TRADE",
     "executionVenue": "NASDAQ"
   },
-  "status": {
-    "currentStatus": "RECEIVED",
-    "timestamp": "2025-11-12T09:30:00Z"
-  },
   "metadata": {
-    "receivedTimestamp": "2025-11-12T09:30:00Z",
-    "correlationId": "bf36b21e-12aa-40fd-bcfa-8b6f39b6e987",
-    "sourceMessageFormat": "XML",
-    "sourceMessageId": "MSG-44588"
+    "tradeDateTime": "2025-11-13T14:30:45.123Z",
+    "correlationId": "CORR-XYZ-20251113",
+    "sourceMessageFormat": "JSON",
+    "sourceMessageId": "MSG-987654321",
+    "additionalProperties": {
+      "batchId": "BATCH-2025-11-13",
+      "receivedBy": "InstructionsCaptureService",
+      "priority": "HIGH"
+    }
   }
 }
